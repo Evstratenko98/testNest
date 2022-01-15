@@ -1,7 +1,7 @@
-import { IsDefined } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 export class CreateUserDto {
-  @IsDefined()
-  phone: string;
+  @IsNumber()
+  phone: number;
   password: string;
 }

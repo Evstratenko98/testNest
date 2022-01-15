@@ -6,7 +6,5 @@ import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [UsersModule, FlowerModule, BouquetModule, OrderModule],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
