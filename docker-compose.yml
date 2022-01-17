@@ -1,39 +1,40 @@
 version: '3'
-services: 
-  db:
-    image: postgres
-    restart: always
-    environment: 
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-    container_name: postgres-db
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
-  nestjs:
-    build: 
-      context: .
-      dockerfile: ./Dockerfile
-    image: tusharchy/nest-and-postgres-application:latest
-    environment: 
-      - DB_TYPE=${DB_TYPE}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASS=${DATABASE_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - POSTGRES_SYNC=false
-      - JWT_SECRET=${JWT_SECRET}
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - APP_EXPIRES=${APP_EXPIRES}
-      - APP_PORT=${APP_PORT}
-    ports: 
-      - "3000:3000" # expose-to-the-world : only-in-the-docker
-    container_name: nest-flowers
-    depends_on: 
-      - db
-    volumes: 
-      - .:/app
-      - /app/node_modules
-volumes:
-  pgdata:
-  pgadmin-data:
+networks:
+    store:
+
+services:
+    test-postgres:
+        env_file:
+            - .env
+        container_name: ${DB_HOST}
+        hostname: ${DB_HOST}
+        image: postgres:12.4-alpine
+        environment:
+            PGDATA: /var/lib/postgresql/data
+            APPDATA: /var/lib/postgresql/data
+            POSTGRES_DB: ${DB_NAME}
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASS}
+        ports:
+            - ${DB_PORT}:${DB_PORT}
+        volumes:
+            - ./postgres:/var/lib/postgresql/data
+        networks:
+            - store
+
+    test-back:
+        env_file:
+            - .env
+        container_name: ${BACK_APP_NAME}
+        hostname: ${BACK_APP_HOST}
+        image: node:14.15.4-alpine3.11
+        ports:
+            - ${BACK_APP_PORT}:${BACK_APP_PORT}
+        volumes:
+            - ./:/app
+        command: npm run start:dev
+        working_dir: /app
+        depends_on: 
+            - test-postgres
+        networks:
+            - store

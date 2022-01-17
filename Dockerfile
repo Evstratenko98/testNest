@@ -1,17 +1,7 @@
-# Image source
-FROM node:12
-
-# Docker working directory
-WORKDIR /app
-
-# Copying file into APP directory of docker
-COPY ./package.json ./package-lock.json /app/
-
-# Then install the NPM module
-RUN npm install
-
-# Copy current directory to APP folder
-COPY . /app/
-
-EXPOSE 3000
-CMD ["npm", "run", "start:dev"]
+FROM node:14.15.4-alpine3.11 as BASE
+RUN apk --no-cache --update
+FROM BASE
+ARG APP_NAME
+COPY ./package*.json ./
+RUN npm i
+COPY ./[^node_modules]* ./
